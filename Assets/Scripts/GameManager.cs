@@ -8,16 +8,17 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Time")]
     public float gameDuration = 1200f; // 20 minutes
-    private float timer;
+    public float timer;
 
     [Header("Macro Data")]
     public int humanPopulation = 4000000;
     public int plantPopulation = 50;
 
     [Header("Substances")]
-    public float sugar = 40f;
-    public float bean = 10f;
-    public float coffea = 0f;
+    [Range(0, 100)] public int sugarPercent = 80;
+    [Range(0, 100)] public int beanPercent = 20;
+    [Range(0, 100)] public int coffeaPercent = 0;
+
 
     [Header("Rates")]
     //public float sugarConsumptionPerHuman = 0.000001f;
@@ -36,6 +37,7 @@ public class GameManager : MonoBehaviour
 
     private float tickTimer;
     public float tickInterval = 1f; // 1 second per turn
+    bool isPaused;
 
     
     void Awake() {
@@ -54,6 +56,10 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if(isPaused)
+        {
+            return;
+        }
         if (timer <= 0)
         {
             EndGame();
@@ -73,32 +79,45 @@ public class GameManager : MonoBehaviour
     void Tick()
     {
 
-        if (sugar < 0)
+        if (sugarPercent < 0)
         {
             humanPopulation -= 10000;
-            sugar = 0;
+            sugarPercent = 0;
         }
 
-        //Plant growth
-        // float growthMultiplier = 1 + coffea * coffeaBoost;
-        // float fatiguePenalty = Mathf.Clamp01(coffeaFatigue);
+        HumanGrowth();
+        PlantGrowth();
+        Fatigue();
 
-        // int plantGrowth = Mathf.RoundToInt(
-        // basePlantGrowth * growthMultiplier * (1 - fatiguePenalty)
+        // if (coffea > 0)
+        // {
+
+        //     coffeaFatigue += coffeaFatigueIncrease * coffea;
+        // }
+        // else
+        // {
+        //     coffeaFatigue -= coffeaFatigueRecovery;
+        // }
+
+        // coffeaFatigue = Mathf.Clamp01(coffeaFatigue);
+
+        // coffeaFatigue -= bean * 0.02f;
+        // coffeaFatigue = Mathf.Clamp01(coffeaFatigue);
+
+
+        CheckMilestone();
+    }
+
+    void HumanGrowth()
+    {
+        // float sugarFactor = sugarPercent / 100f;
+
+        // int humanIncrease = Mathf.RoundToInt(
+        //     baseHumanGrowth * sugarFactor
         // );
 
-        plantPopulation += plantGrowth*plantGrowth;
+        // humanPopulation += Mathf.Max(humanIncrease, 0);
 
-        //Human growth (rough trend)
-        if(humanPopulation>1000000000)
-            plantGrowth=2;
-        else if(humanPopulation>100000000)
-            plantGrowth=10;
-        else if(humanPopulation>10000000)
-            plantGrowth=5;
-        else if(humanPopulation>5000000)
-            plantGrowth=2;       
-        
         if (plantPopulation > 10000)
             humanPopulation += 1000000;
         else if (plantPopulation > 1000)
@@ -107,25 +126,41 @@ public class GameManager : MonoBehaviour
             humanPopulation += 10000;
         else
             humanPopulation += 500;
+    }
+     void PlantGrowth()
+    {
+        float coffeaFactor = coffeaPercent / 100f;
+        float fatiguePenalty = 1f - coffeaFatigue;
 
-        //Coffea overdose
-        if (coffea > 0)
-        {
+        float coffeaBoost = Mathf.Sqrt(coffeaFactor) * 2f;
 
-            coffeaFatigue += coffeaFatigueIncrease * coffea;
-        }
-        else
-        {
-            coffeaFatigue -= coffeaFatigueRecovery;
-        }
+        int plantGain = Mathf.RoundToInt(
+            plantGrowth * (1f + coffeaBoost) * fatiguePenalty
+        );
+
+        plantPopulation += Mathf.Max(plantGain, 1);
+
+        if(humanPopulation>1000000000)
+            plantGrowth=2;
+        else if(humanPopulation>100000000)
+            plantGrowth=10;
+        else if(humanPopulation>10000000)
+            plantGrowth=5;
+        else if(humanPopulation>5000000)
+            plantGrowth=2;
+        
+        plantPopulation += plantGrowth*plantGrowth;
+    }
+
+     void Fatigue()
+    {
+        float coffeaFactor = coffeaPercent / 100f;
+        float beanFactor = beanPercent / 100f;
+
+        coffeaFatigue += coffeaFactor * coffeaFatigueIncrease;
+        coffeaFatigue -= beanFactor * coffeaFatigueRecovery;
 
         coffeaFatigue = Mathf.Clamp01(coffeaFatigue);
-
-        coffeaFatigue -= bean * 0.02f;
-        coffeaFatigue = Mathf.Clamp01(coffeaFatigue);
-
-
-        CheckMilestone();
     }
 
     void CheckMilestone()
@@ -138,6 +173,19 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    public void StopGame()
+    {
+        isPaused = true;
+    }
+
+    public void ContinueGame()
+    {
+        isPaused = false;
+    }
+
+
+
+
     void EndGame()
     {
         Debug.Log("Game Over");
