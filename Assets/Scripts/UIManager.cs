@@ -14,11 +14,11 @@ public class UIManager : MonoBehaviour
     public Button continueButton;
     public GameObject inputPanel;
 
-    GameManager gm;
+    oldGameManager gm;
 
     void Start()
     {
-        gm=GameManager.instance;
+        gm=oldGameManager.instance;
         inputPanel.SetActive(false);
     }
 

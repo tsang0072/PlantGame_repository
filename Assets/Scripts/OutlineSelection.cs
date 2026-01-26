@@ -2,12 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class OutlineSelection : MonoBehaviour
 {
     private Transform highlight;
     private Transform selection;
     private RaycastHit raycastHit;
+
+    public GameObject startText;
+
+    void Start()
+    {
+        startText.SetActive(false);
+    }
 
     void Update()
     {
@@ -53,6 +61,8 @@ public class OutlineSelection : MonoBehaviour
                 selection = raycastHit.transform;
                 selection.gameObject.GetComponent<Outline>().enabled = true;
                 highlight = null;
+
+                startText.SetActive(true);
             }
             else
             {
@@ -60,9 +70,15 @@ public class OutlineSelection : MonoBehaviour
                 {
                     selection.gameObject.GetComponent<Outline>().enabled = false;
                     selection = null;
+                    
                 }
             }
         }
+    }
+
+    public void CloseText()
+    {
+        startText.SetActive(false);
     }
 
 }
