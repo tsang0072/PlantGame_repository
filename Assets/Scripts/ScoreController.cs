@@ -6,27 +6,30 @@ using UnityEngine.UI;
 
 public class ScoreController : MonoBehaviour
 {
-    public TMP_Text addictNum;
-    // public TMP_Text plantNum;
-    // public TMP_Text sugarNum;
-    // public TMP_Text beanNum;
-    // public TMP_Text coffeaNum;
+    public TMP_Text addictPer;
+    public TMP_Text awarePer;
 
     public TMP_Text timeNum;
 
-    
+    public TMP_Text levelText;
+    public TMP_Text pointText;
 
 
     void Start() {
         string timeNum=GameManager.instance.Year.ToString();
         string addictNum=GameManager.instance.addictPercentage.ToString();
-
+        string point=GameManager.instance.point.ToString();
+        string level=GameManager.instance.level.ToString();
+        string awarePer=GameManager.instance.awareness.ToString();
     }
 
      void Update()
     {
         timeNum.SetText("Year: " + GameManager.instance.Year);
-        addictNum.SetText("Addict: " + GameManager.instance.addictPercentage+"%");
+        addictPer.SetText("Addict: " + GameManager.instance.addictPercentage+"%");
+        pointText.SetText("Point: " + GameManager.instance.point);
+        levelText.SetText("Level: " + GameManager.instance.level);
+        awarePer.SetText("Awareness: " + GameManager.instance.awareness);
     }
 
     // void NormalizePercentages()
