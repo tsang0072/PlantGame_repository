@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,15 +28,12 @@ public class GameManager : MonoBehaviour
 
     [Header("Awareness")]
     public int awareness;  
-    // public float awarenessPenalty = 0.5f;
-    // public float awarenessDecay = 0.01f;
-    
-    // public float fastGrowthThreshold = 0.02f; // 2% per tick
-    // public float spikeThreshold = 50000f;     // +50k in one tick
 
     public float Year;
     bool isTicking=false;
+    bool isTicking2=false;
     private int lastAddictedCheckpoint;
+
 
 
     void Awake()
@@ -57,10 +55,24 @@ public class GameManager : MonoBehaviour
             StartCoroutine(FiveSec());
             }
             
-        AddictGrowth(Year);
-        CheckEvolutionProgress();
+        //AddictGrowth(Time.deltaTime);
+        //CheckEvolutionProgress();
 
-        
+        if (addictNum >= totalPopulation)
+        {
+            gameRunning=false;
+            Time.timeScale=0;
+        }
+        if (Year!=0&&addictNum <= 0)
+        {
+            addictNum=0;
+            gameRunning=false;
+            Time.timeScale=0;
+        }
+
+        if(!isTicking2){
+            StartCoroutine(OneMin());
+            }
     }
     public void StartGame()
     {
@@ -77,20 +89,31 @@ public class GameManager : MonoBehaviour
     public void AddictGrowth(float dt)
     {
         float remaining = totalPopulation - addictNum;
-        if (remaining <= 0f) return;
+        if (remaining <= 0) return;
 
-        float tem= spreadRate * remaining * dt;
-        addictNum = Convert.ToInt32(tem);
+        if (level > 5&&level<=10)
+        {
+            addictNum+=5000;
+        }else if (level > 10&&level<=15)
+        {
+            addictNum+=10000;
+        }else if (level > 15)
+        {
+            addictNum+=100000;
+        }
+        float growth = spreadRate * remaining * dt;
 
-        addictPercentage= 100*addictNum / totalPopulation;
+        addictNum += Mathf.RoundToInt(growth);
+        addictNum = Mathf.Clamp(addictNum, 0, totalPopulation);
 
-        UpdateAwareness();
+        addictPercentage = addictNum * 100 / totalPopulation;
+
 
     }
 
     void UpdateAwareness()
     {
-
+    if(awareness==100) return;
 
     if (spreadRate>0.005&&spreadRate<0.02)
     {
@@ -98,21 +121,38 @@ public class GameManager : MonoBehaviour
     }
     else if (spreadRate > 0.02 && spreadRate < 0.05)
     {
-            awareness += 2;
+            awareness += 5;
     }
     else if (spreadRate > 0.05)
     {
-            awareness += 5;
-    }else if (spreadRate < 0.02)
+            awareness += 10;
+    }
+    if (awareness > 100)
         {
-            awareness=0;
+            awareness=100;
         }
 
 
     }
 
+    public void reduceAddict()
+    {
+        if (awareness > 10&&awareness < 40)
+        {
+            spreadRate-=0.0001f;
+        }else if(awareness >= 40&&awareness < 80)
+        {
+            spreadRate-=0.0003f;
+        }
+        else if(awareness > 80&&awareness <= 100)
+        {
+            spreadRate-=0.005f;
+        }
+        
+    }
+
     
-    public void LevelUp()
+    public void PhysicLevelUp()
     {
         if (point >= 3)
         {
@@ -120,27 +160,34 @@ public class GameManager : MonoBehaviour
             level++;
             spreadRate += 0.005f;
 
-            int addictedInt = Mathf.FloorToInt(addictNum);
-            int checkpointsPassed = addictedInt / 10000;
-            lastAddictedCheckpoint = checkpointsPassed;
+        }
+    }
+     public void MentalLevelUp()
+    {
+        if (point >= 2&&awareness>=10)
+        {
+            point-=2;
+            
+            awareness-=10;;
+
         }
     }
 
     void CheckEvolutionProgress()
-{
-    int addictedInt = Mathf.FloorToInt(addictNum);
-
-    int checkpointsPassed = addictedInt / 10000;
-
-    int newPoints = checkpointsPassed - lastAddictedCheckpoint;
-
-    if (newPoints > 0)
     {
-        point += 1;
-        lastAddictedCheckpoint = checkpointsPassed;
+        int checkpointsPassed = addictNum / 10000;
 
+        if (checkpointsPassed > lastAddictedCheckpoint)
+        {
+            point += 1;
+            lastAddictedCheckpoint = checkpointsPassed;
+        }
     }
-}
+    
+    public void WinGame()
+    {
+        UIManager.instance.WinBoard();
+    }
 
     public void StopGame()
     {
@@ -157,7 +204,19 @@ public class GameManager : MonoBehaviour
  {
         isTicking=true;
         yield return new WaitForSeconds(3);
-        Year+=1;
+        Year += 1;
+
+        AddictGrowth(1f);          // ONE tick
+        CheckEvolutionProgress();  // ONE chance to gain point
+        UpdateAwareness();
         isTicking=false;
  }
+
+ IEnumerator OneMin()
+    {
+        isTicking2=true;
+        yield return new WaitForSeconds(5);
+        reduceAddict();
+        isTicking2=false;
+    }
 }

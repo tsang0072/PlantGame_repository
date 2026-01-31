@@ -6,84 +6,47 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Input Fields")]
-    public TMP_InputField sugarInput;
-    public TMP_InputField beanInput;
-    public TMP_InputField coffeaInput;
+    public static UIManager instance;
 
-    public Button continueButton;
-    public GameObject inputPanel;
+    public TMP_Text addictPer;
+    public TMP_Text awarePer;
 
-    oldGameManager gm;
+    public TMP_Text timeNum;
 
-    void Start()
+    public TMP_Text levelText;
+    public TMP_Text pointText;
+    public GameObject winBoard;
+
+
+    void Awake()
     {
-        gm=oldGameManager.instance;
-        inputPanel.SetActive(false);
+        instance = this;
+    }
+    
+    void Start() {
+        string timeNum=GameManager.instance.Year.ToString();
+        string addictNum=GameManager.instance.addictPercentage.ToString();
+        string point=GameManager.instance.point.ToString();
+        string level=GameManager.instance.level.ToString();
+        string awarePer=GameManager.instance.awareness.ToString();
+
+        winBoard.SetActive(false);
     }
 
-    void Update()
+     void Update()
     {
+        timeNum.SetText("Year: " + GameManager.instance.Year);
+        addictPer.SetText("Addict: " + GameManager.instance.addictPercentage+"%");
+        pointText.SetText("Point: " + GameManager.instance.point);
+        levelText.SetText("Level: " + GameManager.instance.level);
+        awarePer.SetText("Awareness: " + GameManager.instance.awareness);
+
         
     }
-    public void OnStopPressed()
+
+    public void WinBoard()
     {
-        gm.StopGame();
-        inputPanel.SetActive(true);
-        SyncFromGameManager();
+        winBoard.SetActive(true);
     }
 
-    public void OnContinuePressed()
-    {
-        if (!IsInputValid())
-            return;
-
-        ApplyToGameManager();
-        inputPanel.SetActive(false);
-        gm.ContinueGame();
-    }
-    public void OnValueChanged()
-    {
-        continueButton.interactable = IsInputValid();
-    }
-
-    // =========================
-    // CORE LOGIC
-    // =========================
-
-    bool IsInputValid()
-    {
-        int sugar = GetInputValue(sugarInput);
-        int bean = GetInputValue(beanInput);
-        int coffea = GetInputValue(coffeaInput);
-
-        int total = sugar + bean + coffea;
-
-        return total == 100 &&
-               sugar >= 0 && bean >= 0 && coffea >= 0;
-    }
-
-    void ApplyToGameManager()
-    {
-        gm.sugarPercent = GetInputValue(sugarInput);
-        gm.beanPercent = GetInputValue(beanInput);
-        gm.coffeaPercent = GetInputValue(coffeaInput);
-    }
-    void SyncFromGameManager()
-    {
-        sugarInput.text = gm.sugarPercent.ToString();
-        beanInput.text = gm.beanPercent.ToString();
-        coffeaInput.text = gm.coffeaPercent.ToString();
-
-        continueButton.interactable = true;
-    }
-
-
-    int GetInputValue(TMP_InputField input)
-    {
-        if (int.TryParse(input.text, out int value))
-            return Mathf.Clamp(value, 0, 100);
-
-        return 0;
-    }
 }

@@ -62,6 +62,7 @@ public class OutlineSelection : MonoBehaviour
                 selection.gameObject.GetComponent<Outline>().enabled = true;
                 highlight = null;
 
+                if(!GameManager.instance.gameRunning)
                 startText.SetActive(true);
             }
             else
