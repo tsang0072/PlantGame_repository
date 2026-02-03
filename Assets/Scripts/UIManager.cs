@@ -47,6 +47,7 @@ public class UIManager : MonoBehaviour
     public void WinBoard()
     {
         winBoard.SetActive(true);
+        Debug.Log("Win");
     }
 
 }

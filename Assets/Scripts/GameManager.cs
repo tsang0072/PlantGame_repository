@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
         if (addictNum >= totalPopulation)
         {
             gameRunning=false;
+            UIManager.instance.WinBoard();
             Time.timeScale=0;
         }
         if (Year!=0&&addictNum <= 0)
