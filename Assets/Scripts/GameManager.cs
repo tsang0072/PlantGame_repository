@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     public int point;
     public int level;
 
+
     [Header("Awareness")]
     public int awareness;  
 
@@ -118,15 +119,15 @@ public class GameManager : MonoBehaviour
 
     if (spreadRate>0.005&&spreadRate<0.02)
     {
-        awareness += 1;
+        awareness += 0;
     }
     else if (spreadRate > 0.02 && spreadRate < 0.05)
     {
-            awareness += 5;
+            awareness += 1;
     }
     else if (spreadRate > 0.05)
     {
-            awareness += 10;
+            awareness += 5;
     }
     if (awareness > 100)
         {
@@ -173,6 +174,7 @@ public class GameManager : MonoBehaviour
 
         }
     }
+
 
     void CheckEvolutionProgress()
     {

@@ -17,6 +17,11 @@ public class UIManager : MonoBehaviour
     public TMP_Text pointText;
     public GameObject winBoard;
 
+    public Button button;
+    public Button[] unlocksNext;
+    public bool unlocked = false;
+
+
 
     void Awake()
     {
@@ -31,6 +36,7 @@ public class UIManager : MonoBehaviour
         string awarePer=GameManager.instance.awareness.ToString();
 
         winBoard.SetActive(false);
+        
     }
 
      void Update()
@@ -49,5 +55,34 @@ public class UIManager : MonoBehaviour
         winBoard.SetActive(true);
         Debug.Log("Win");
     }
+
+    public void TryUnlock()
+    {
+        if (unlocked) return;
+        
+
+        // Pay cost
+        
+        unlocked = true;
+
+        // Enable next evolutions
+        foreach (var button in unlocksNext)
+        {
+            button.enabled=true;
+        }
+
+        UpdateButton();
+    }
+
+     public void Enable()
+    {
+        button.interactable = true;
+    }
+
+    void UpdateButton()
+    {
+        button.interactable = !unlocked;
+    }
+
 
 }
