@@ -75,6 +75,8 @@ public class GameManager : MonoBehaviour
         if(!isTicking2){
             StartCoroutine(OneMin());
             }
+
+        NewsManager.instance.CheckMilestones(addictNum, awareness);    
     }
     public void StartGame()
     {

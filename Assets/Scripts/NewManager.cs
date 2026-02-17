@@ -4,17 +4,31 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+
 public class NewsManager : MonoBehaviour
 {
-    public static NewsManager instance;
+    public enum MilestoneType
+{
+    Addiction,
+    Awareness
+}
 
-    public GameObject News50K;
-    public GameObject News100K;
-    public GameObject News500K;
+    [System.Serializable]
+public class NewsMilestone
+{
+    public MilestoneType type;
+    public int threshold;
+    public GameObject newsObject;
 
-    private bool news50KShown = false;
-    private bool news100KShown = false;
-    private bool news500KShown = false;
+    [HideInInspector]
+    public bool hasShown;
+}
+
+   public static NewsManager instance;
+
+    public List<NewsMilestone> milestones = new List<NewsMilestone>();
+
+    public float displayTime = 2f;
 
     void Awake()
     {
@@ -23,36 +37,46 @@ public class NewsManager : MonoBehaviour
 
     void Start()
     {
-        News50K.SetActive(false);
-        News100K.SetActive(false);
-        News500K.SetActive(false);
-    }
-
-    public void CheckMilestones(int addictCount)
-    {
-        if (addictCount >= 50000 && !news50KShown)
+        foreach (var milestone in milestones)
         {
-            StartCoroutine(ShowNewsForSeconds(News50K));
-            news50KShown = true;
-        }
-
-        if (addictCount >= 100000 && !news100KShown)
-        {
-            StartCoroutine(ShowNewsForSeconds(News100K));
-            news100KShown = true;
-        }
-
-        if (addictCount >= 5000000 && !news500KShown)
-        {
-            StartCoroutine(ShowNewsForSeconds(News500K));
-            news500KShown = true;
+            milestone.newsObject.SetActive(false);
+            milestone.hasShown = false;
         }
     }
 
-    IEnumerator ShowNewsForSeconds(GameObject newsObject)
+    public void CheckMilestones(int addictCount, int awarenessLevel)
     {
-        newsObject.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        newsObject.SetActive(false);
+        foreach (var milestone in milestones)
+        {
+            if (milestone.hasShown)
+                continue;
+
+            switch (milestone.type)
+            {
+                case MilestoneType.Addiction:
+                    if (addictCount >= milestone.threshold)
+                        TriggerMilestone(milestone);
+                    break;
+
+                case MilestoneType.Awareness:
+                    if (awarenessLevel >= milestone.threshold)
+                        TriggerMilestone(milestone);
+                    break;
+            }
+        }
+    }
+
+    void TriggerMilestone(NewsMilestone milestone)
+    {
+        milestone.hasShown = true;
+        Debug.Log("news: " + milestone.type);
+        StartCoroutine(ShowNews(milestone));
+    }
+
+    IEnumerator ShowNews(NewsMilestone milestone)
+    {
+        milestone.newsObject.SetActive(true);
+        yield return new WaitForSeconds(displayTime);
+        milestone.newsObject.SetActive(false);
     }
 }
