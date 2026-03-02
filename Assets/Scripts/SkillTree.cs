@@ -27,8 +27,8 @@ public class SkillTree : MonoBehaviour
 
     public void TryUnlock()
     {
+        if(GameManager.instance.point < 3) return;
         if (unlocked) return;
-        //if (GameManager.instance.point < cost) return;
 
         //GameManager.instance.point -= cost;
         unlocked = true;
@@ -37,9 +37,8 @@ public class SkillTree : MonoBehaviour
         foreach (var child in children)
         {
             child.nodeUI.SetActive(true);
+            Debug.Log("level up");
         }
-
-        // Disable this button (optional)
         this.GetComponent<Button>().interactable = false;
     }
 
