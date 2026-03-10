@@ -18,7 +18,9 @@ public class ColourChange : MonoBehaviour
         rend = GetComponent<Renderer>();
 
         // IMPORTANT: unique material instance
-        materialInstance = rend.material;
+        materialInstance = rend.sharedMaterial;
+        //rend.sharedMaterial.shader = Shader.Find("grass.001");
+        //originalColor= rend.sharedMaterial.color;
 
         originalColor = materialInstance.color;
         targetColor = originalColor;
@@ -38,5 +40,10 @@ public class ColourChange : MonoBehaviour
             targetColor,
             Time.deltaTime * smoothSpeed
         );
+        // rend.sharedMaterial.color = Color.Lerp(
+        //     rend.sharedMaterial.color,
+        //     targetColor,
+        //     Time.deltaTime * smoothSpeed
+        // );
     }
 }
